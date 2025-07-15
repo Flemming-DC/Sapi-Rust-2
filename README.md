@@ -1,1 +1,2 @@
-# Sapi-Rust-2
+
+This is a Rust version of the Sapi compiler. 
