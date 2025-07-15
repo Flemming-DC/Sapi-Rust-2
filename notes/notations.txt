@@ -1,0 +1,16 @@
+
+
+evt byt `from tab...`
+med `from extended tab `
+
+select (joined|linked|hierachic|json)? (only touch tabs)?
+insert (linked|hierachic|json)? (only touch tabs)?
+evt. update (linked|hierachic|json)? (only touch tabs)?
+evt. upsert (linked|hierachic|json)? (only touch tabs)?
+evt. delete (cascade only touch tabs)?
+
+
+evt. byt `only touch` med `upon`
+evt. allow linked to contain hierachic|json
+
+

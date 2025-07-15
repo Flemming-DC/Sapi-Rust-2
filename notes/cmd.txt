@@ -1,0 +1,8 @@
+git:
+	git add . && git commit -m "m" && git push
+
+test:
+	set RUST_BACKTRACE=1
+	cargo test --lib -- test_name --nocapture
+	cargo bench
+

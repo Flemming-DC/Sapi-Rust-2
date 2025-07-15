@@ -1,0 +1,230 @@
+
+-- joiner / module
+create joiner BA as
+	tabs ba, var, bt, fil, tv, kor, vgt, kt -- allows alias expressions, e.g kt as kt, 
+	distribute var --across ba, fil, tv, kor, vgt, kt (precomputes the tv->var as alias for var through tv)
+	-- cut var->any
+	-- plug into parent bt->any->var (only relevant for insert)
+	-- plug single children into parent (only relevant for insert)
+	-- evt. include views on the tabs and/or computed columns
+;
+
+-- evt. introduce module-views
+
+select 
+	bt_, fil_, tv_, kor_, hir_, ba.vgt.vgt_, kt_,
+	tv->var_
+from BA
+
+create joiner LA as
+	root la -- for ekplicitness and to control parent / child direction
+	tabs la, hv, bv, lav, nrla, nrkt, lp, ad, lev, mc, nc, ik, vgt, rev, ek
+	distribute nrla default la->nrla 
+	-- cut var->any
+	-- plug into parent la->hv, nrla->nrkt 
+	-- evt. include views on the tabs and/or computed columns
+;
+
+
+select 
+	la_, nc_, ik_, la.vgt.vgt_, rev_, ek_,
+	gammel_nrla->nrla_, 
+	ekstern_nrla->nrla_
+from LA
+
+select 
+	bt_, fil_, tv_, kor_, hir_, ba.vgt.vgt_, kt_,
+	tv.var_id->var_
+from BA
+
+evt. rename tv.var_id to tv_var
+select 
+	tv_var->var_
+from BA
+
+
+insert into BA hierarchic_data
+
+---------------
+
+no eksplicit joiner
+
+select tv_var->var_ from ba...
+select tv.var_id->var_ from ba...
+select gammel_nrla->nrla_ from la...
+select gammel_nrla->nrla.la_id->lev_ from la...
+
+with schema as module boundary
+
+select pass_through from tab... pass_through
+pass_through records col_ways
+
+col_way := ref->...->ref->full_col
+full_col = skema?.tab?.col
+ref = a full_col that is a fk to tab of full_col
+
+
+
+-----------------
+
+
+------- col_way --------
+
+col_way = col_road = [QName]
+
+compute relata tree to first item in each col_way
+
+from there the col_way must specify the exact path down to each col
+
+for each col_way of len > 1
+	compute path to target col
+	add path to relata tree (what about dublicates?)
+	handle aliases
+	
+
+
+----
+
+Figuring out to use la->nrla->rev using rev.nrla_id = nrla.nrla_id 
+rather than rev.gammel_nrla_id = nrla.gammel_nrla_id requires 
+predefined information, namely that nrla_id is the default, not gammel_nrla_id.
+
+You probably also need predefined joiners/modules to prevent a new circle from
+destroyed tons of unrelated queries.
+
+sapi
+	select 
+		la_, nc_, ik_, la.vgt.vgt_, rev_, ek_,
+		gammel_nrla->nrla_, 
+		ekstern_nrla->nrla_
+	from la...
+sql
+	select 
+		la_, nc_, ik_, la.vgt.vgt_, rev_, ek_,
+		rev_gammel_nrla_id.nrla_, 
+		ek_ekstern_nrla_id.nrla_
+	from la
+    join nrla on nrla.la_id = la.la_id
+    join nc on nc.la_id = la.la_id
+    join ik on ik.la_id = la.la_id
+    join la.vgt on la.vgt.nrla_id = nrla.nrla_id
+    join rev on rev.nrla_id = nrla.nrla_id
+    join ek on ek.nrla_id = nrla.nrla_id
+	join nrla as rev_gammel_nrla_id on rev_gammel_nrla_id.nrla_id = ek.gammel_nrla_id
+	join nrla as ek_ekstern_nrla_id on ek_ekstern_nrla_id.nrla_id = ek.ekstern_nrla_id
+
+
+
+
+sapi
+	select 
+		bt_, fil_, tv_, kor_, hir_, ba.vgt.vgt_, kt_,
+		tv.var_id->var_
+	from ba...
+sql
+	select 
+		bt_, fil_, tv_, kor_, hir_, ba.vgt.vgt_, kt_,
+		tv_var_id.var_
+    from bt
+    join fil on fil.bt_id = bt.bt_id
+    join tv on tv.bt_id = bt.bt_id
+    join kor on kor.bt_id = bt.bt_id
+    join hir on hir.bt_id = bt.bt_id
+    join ba.vgt on ba.vgt.bt_id = bt.bt_id
+    join kt on kt.bt_id = bt.bt_id
+    join var as tv_var_id on tv_var_id.var_id = tv.var_id
+
+
+sapi
+	select 
+		gammel_nrla_id->nrla.la_id->la_ 
+		-- ->lev_ instead of ->la_ would not be allowed, since the arrows must  
+		-- provide the exact path down to the table (for simplicity). 
+	from la...
+sql
+	select 
+		gammel_nrla_id_nrla_la_id.lev_ 
+	from la
+    join nrla on nrla.la_id = la.la_id
+    join rev on rev.nrla_id = nrla.nrla_id
+	join nrla as rev_gammel_nrla_id on rev_gammel_nrla_id.nrla_id = ek.gammel_nrla_id
+	join la as gammel_nrla_id_nrla_la_id on gammel_nrla_id_nrla_la_id.la_id = rev_gammel_nrla_id.la_id
+
+hyp: a-->b for indirect paths. 
+Those paths can be handled by calling make_relatatree with a as the root as a, b as the referenced tables.
+
+
+sapi
+	with cte as (...)
+	select 
+		tab.tip, bib, cte.stuff
+	from tab
+	join my_joiner on my_joiner.tab_id = tab.id
+	join cte on ...
+sql
+	with cte as (...)
+	select 
+		tab.tip, bib, cte.stuff
+	from tab
+	join root on root.tab_id = tab.id -- requirement: tab_id must be at root of joiner
+	join j1 on ...
+	...
+	join jN on ...
+	join cte on ...
+
+or move `on my_joiner.tab_id = tab.id` down to the table containing tab_id
+like this
+	join root on true
+	join j1 on j1.root_id = root.id and j1.tab_id = tab.id
+this would be slow. Evt. reorder the joins like so
+	join j1 on j1.tab_id = tab.id
+	join root on j1.root_id = root.id
+this would require joining both up and down the tree. This complicates things somewhat. 
+evt. define the root dynamically as the first element in the join's, rather than defining it up front
+
+
+create joiner BA (
+	tables ba, ba_variabel as var, ...
+	root is ba
+	distribute var default ba->var 
+);
+
+
+In sql multi insert seems useful, but hierarchic insert doesn't
+In application hierarchic insert shines, but multi insert looks nice too.
+
+insert_into(BA, hierachic_ba_struct_instance)
+insert_into("BA", hierachic_ba_dict)
+insert_into("any", hierachic_ba_dict) -- this corrosponds to from tab... and it assumes you got no circles
+
+insert map ref
+	into tab1 data1
+	...
+	into tabN dataN
+
+map idx (
+	insert into tab1 data1
+	...
+	insert into tabN dataN
+)
+
+insert into BA json
+
+
+la, nrla, ad, lev := sapi`
+	multi select map ref
+		select la_id from la
+		select nrla_id, la_id from nrla
+		select ad_id, nrla_id from ad
+		select lev_id, ad_id from lev
+	`.compile(model, conn).run().await?
+
+la_from_lev = lev.ad_id*.nrla_id*.la_id*
+la_from_lev = lev.ad_id.nrla_id.la_id
+
+
+
+
+
+
+

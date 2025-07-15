@@ -1,0 +1,47 @@
+
+
+load or type foreign key info and convert it into convient format
+sql tokenize in a dialect neutral way via external lib
+classify tokens relevantly
+parse to TokTree
+for each level parse query
+    select
+    insert
+    update 
+    delete
+    (evt. upsert)
+generate output token list
+cast to string
+
+-------
+parse tok-list to TokTree and parsing a query in the TokTree can evt. be combined into a single parse function.
+dont use explicit integers in parsing.
+dont modify token-list, instead generate output.
+allow tokens and token-lists to be printed exactly as the underlying text.
+use Id<T> and wrapper-struct to manage Bumpalo without excessive lifetime spam
+
+
+-------
+
+select --- from tab... ---
+json select --- from tab... ---
+multi select --- from tab... ---
+
+insert into tab... (indices to keys | fix keys | hierarchic | keep keys)? 
+tab as ---
+tab1 as ---
+...
+tabN as ---
+
+insert into tab... (indices to keys | fix keys | hierarchic | keep keys)? 
+values json
+
+update <like insert, but with a where clause>
+
+delete from tab... where --- (like cascade)
+delete from tab cascade upon tab1, ..., tabN
+
+-------
+manage reference format in query vs in libery functions?
+
+

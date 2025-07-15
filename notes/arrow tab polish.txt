@@ -1,0 +1,12 @@
+
+
+align resolved_column.arrow_tabs vs relata.arrow_tabs
+simplify alias code in generator. 
+optionally warn if unnecessry arrow tab
+
+tests
+    expected errors
+    more complex queries
+    evt. test nova emulation
+
+

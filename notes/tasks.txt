@@ -1,0 +1,23 @@
+
+look at issues
+
+
+select
+    select * 
+    select tabX.tabY_id->colY
+    with
+    views
+    custom join types
+    jsonic select
+    multi select / select linked datasets
+
+err handling
+    unrecognized identifiers
+    semantic err list across all queries (dont exit early)
+
+    model mustn't chrash for malformed / inkonsistent input to detamodel (happens in hashmap lookups)
+
+perf
+    use criterion crate for benchmarks
+
+

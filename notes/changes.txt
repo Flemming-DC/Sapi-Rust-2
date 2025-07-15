@@ -1,0 +1,4 @@
+
+disallow auto join across schemas, unless explicitly permitted by "from tab... across schemas a, b" or "from tab... across all schemas"
+handle skema prefix on tables in from clause 
+

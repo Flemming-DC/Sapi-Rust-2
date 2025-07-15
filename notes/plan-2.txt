@@ -1,0 +1,71 @@
+
+ResArray evt. rename LimArray
+
+benyt en struct such as
+    toks: ResArray 
+    locs: ResArray 
+where Tok contains Idx to locs and to source string. If generated it may have idx to generated str
+
+---------- grammar ---------- 
+
+Script -> (Query else pass)*
+Query -> Selection | Insertion | Updation | Deletion | WithQuery
+// (Query) is a nested query and thus either a subquery or a cte
+// pass kunne evt hedde invariant, since they are treated the same way by every query 
+pass -> ((identifier.)*identifier | | ignored | (Query))*
+
+// this from clause doesnt allow combining identifier... with join
+Selection -> select json? multiple? to_indices? pass from (identifier... else pass) pass
+Insertion -> insert into ((identifier... (key_fixes) (sql-insert or perhaps explicit values blah | Selection)+) else pass) 
+Updation -> 
+Deletion -> 
+WithQuery -> With Script
+
+
+// overwrite ??
+ignored --> anything except the interesting tok types
+
+
+
+Stmt -> Query | DDL // DDL is omitted in sapi, so query is root node
+Block_with_paren -> (Query)
+Block -> Selection | Insertion | Updation | Deletion
+
+
+---------- ast ---------- 
+
+enum
+    Script
+    Query
+    Pass
+    Selection
+    Insertion 
+    Updation  
+    Deletion  
+    WithQuery
+
+---------- semantic analysis ---------- 
+any query
+    Pass has already collected identifiers (with any provided prefix) in parser.
+    resolve identifers into schema.tab.col or report amguity / unrecognized errors
+selection
+    build tree
+    find path    
+insertion
+    get keys
+
+---------- generate tokens ---------- 
+any query
+    copy tokens
+    remove ...
+selection
+    insert prefixes (with type generated)
+    insert joins (with type generated)
+    
+
+
+---------- to sql string ---------- 
+
+loop over generated tokes 
+
+ 

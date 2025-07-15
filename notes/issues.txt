@@ -1,0 +1,26 @@
+
+ignore_err in parser
+error list in parse_script in err.rs and as member variable of parser
+
+parse_select     self.parse_until(&[From, SemiColon, Eof, RParen])?;
+    exists on nested RParen
+
+eliminate ignored tok_ty, by stuffing it into some text list. e.g. a text seperator list
+
+this doesnt handle nested queries correctly
+    self.query_idx = self.ast.nodes.len(); // idx of the to-be-generated node
+    P!(self.query_idx);
+    let old = self.ast.query_to_names.insert(self.query_idx, arena::new_vec(4));
+
+detect ambiguities regardings the diamond problem.
+    resolve by prefix
+
+should compiler really return StringA? it can have lifetime issues
+
+new_tok_data.so_far = root.tab.raw + 2; // root.tab.raw + 1 is tripledot_index, so why + 2?
+
+check err formating in parse_ident
+dont accept arrow resolution outside select
+
+
+
